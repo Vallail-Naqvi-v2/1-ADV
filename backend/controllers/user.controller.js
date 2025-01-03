@@ -25,9 +25,7 @@ export const followUnfollowUser = async (req, res) => {
     const userToModify = await User.findById(id);
     const currentUser = await User.findById(req.user._id);
     if (id === req.user._id.toString()) {
-      return res
-        .status(400)
-        .json({ error: "Cannot follow or Unfollow youself" });
+      return res.status(400).json({ error: "Cannot follow or Unfollow youself" });
     }
     if (!userToModify || !currentUser) {
       return res.status(404).json({ error: "User Not Found" });
@@ -71,9 +69,7 @@ export const getSuggestedUsers = async (req, res) => {
       },
       { $sample: { size: 10 } },
     ]);
-    const filteredUsers = users.filter(
-      (user) => !usersFollowedByMe.following.includes(user.id)
-    );
+    const filteredUsers = users.filter((user) => !usersFollowedByMe.following.includes(user.id));
     const suggestedUsers = filteredUsers.slice(0, 4);
     suggestedUsers.forEach((user) => (user.password = null));
     res.status(200).json(suggestedUsers);
@@ -84,8 +80,7 @@ export const getSuggestedUsers = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-  const { fullname, email, username, currentPassword, newPassword, bio, link } =
-    req.body;
+  const { fullname, email, username, currentPassword, newPassword, bio, link } = req.body;
   let { profileImg, coverImg } = req.body;
   const userId = req.user._id;
   try {
@@ -93,13 +88,8 @@ export const updateUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    if (
-      (!newPassword && currentPassword) ||
-      (!currentPassword && newPassword)
-    ) {
-      return res
-        .status(400)
-        .json({ error: "Please provide current password and a new password" });
+    if ((!newPassword && currentPassword) || (!currentPassword && newPassword)) {
+      return res.status(400).json({ error: "Please provide current password and a new password" });
     }
     if (currentPassword && newPassword) {
       const isMatch = await bcrypt.compare(currentPassword, user.password);
@@ -112,18 +102,14 @@ export const updateUser = async (req, res) => {
     }
     if (profileImg) {
       if (user.profileImg) {
-        await cloudinary.uploader.destroy(
-          user.profileImg.split("/").pop().split(".")[0]
-        );
+        await cloudinary.uploader.destroy(user.profileImg.split("/").pop().split(".")[0]);
       }
       const uploadedResponse = await cloudinary.uploader.upload(profileImg);
       profileImg = uploadedResponse.secure_url;
     }
     if (coverImg) {
       if (user.coverImg) {
-        await cloudinary.uploader.destroy(
-          user.coverImg.split("/").pop().split(".")[0]
-        );
+        await cloudinary.uploader.destroy(user.coverImg.split("/").pop().split(".")[0]);
       }
       const uploadedResponse = await cloudinary.uploader.upload(coverImg);
       coverImg = uploadedResponse.secure_url;
