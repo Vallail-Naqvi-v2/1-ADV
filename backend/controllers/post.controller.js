@@ -192,5 +192,8 @@ export const getFollowingPosts = async (req, res) => {
 export const getAllUserPosts = async (req, res) => {
   try {
     const username = req.params;
-  } catch (error) {}
+  } catch (error) {
+    console.log("Error in getAllUserPost ", error);
+    res.status(500).message({ error: "Internal Server Error" });
+  }
 };
